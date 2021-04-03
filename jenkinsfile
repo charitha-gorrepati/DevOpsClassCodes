@@ -1,0 +1,46 @@
+pipeline{
+    tools{
+        jdk 'myjava'
+        maven 'mymaven'
+        }
+    agent none
+    stages{
+        stage('checkout'){
+        agent any
+        steps{
+        git 'https://github.com/charitha-gorrepati/DevOpsClassCodes.git'
+    }
+    }
+    stage('compile'){
+    agent any
+    steps{
+        sh 'mvn compile'
+    }
+}
+stage('CodeReview'){
+agent any
+steps{
+    sh 'mvn pmd:pmd'
+}
+}
+stage('UnitTest'){
+agent {label 'linux_slave'}
+steps{
+    git 'https://github.com/charitha-gorrepati/DevOpsClassCodes.git'
+    sh 'mvn test'
+}
+}
+stage('MetrucCheck'){
+agent any
+steps{
+    sh 'mvn cobertura:cobertura -Dcobertura.report.format=xml'
+}
+}
+stage('package'){
+    agent any
+    steps{
+        sh 'mvn package'
+    }
+}
+}
+}
